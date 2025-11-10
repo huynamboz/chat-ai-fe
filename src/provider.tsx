@@ -2,6 +2,8 @@ import type { NavigateOptions } from "react-router-dom";
 
 import { HeroUIProvider } from "@heroui/system";
 import { useHref, useNavigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/auth.context";
+import { WebSocketProvider } from "@/components/websocket-provider";
 
 declare module "@react-types/shared" {
   interface RouterConfig {
@@ -14,7 +16,9 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
-      {children}
+      <AuthProvider>
+        <WebSocketProvider>{children}</WebSocketProvider>
+      </AuthProvider>
     </HeroUIProvider>
   );
 }

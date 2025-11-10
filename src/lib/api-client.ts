@@ -130,6 +130,8 @@ class ApiClient {
   clearToken(): void {
     this.token = null;
     localStorage.removeItem("auth_token");
+    // Dispatch event to notify auth context
+    window.dispatchEvent(new CustomEvent("auth:token-cleared"));
   }
 
   /**

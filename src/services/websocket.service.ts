@@ -1,10 +1,12 @@
 /**
  * WebSocket Service
  * Handles WebSocket connection and events for real-time chat
+ * Based on API Documentation
  */
 
 import { io, Socket } from "socket.io-client";
 import { apiConfig } from "@/config/api.config";
+import { apiClient } from "@/lib/api-client";
 import type {
   WebSocketAuth,
   AskQuestionRequest,
@@ -18,19 +20,40 @@ type EventCallback<T> = (data: T) => void;
 class WebSocketService {
   private socket: Socket | null = null;
   private token: string | null = null;
+  private pendingCallbacks: {
+    serverAck?: EventCallback<ServerAckResponse>[];
+    receiveAnswer?: EventCallback<ReceiveAnswerResponse>[];
+    errorMessage?: EventCallback<ErrorMessageResponse>[];
+    disconnect?: (() => void)[];
+    connect?: (() => void)[];
+  } = {};
 
   /**
    * Connect to WebSocket server
+   * Authentication: JWT token in handshake auth
    */
-  connect(token: string): void {
+  connect(token?: string): void {
+    // Prevent multiple connections
     if (this.socket?.connected) {
       console.warn("WebSocket already connected");
       return;
     }
+    
+    // If socket exists but not connected, disconnect first
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
 
-    this.token = token;
+    // Get token from parameter or API client
+    const authToken = token || apiClient.getToken();
+    if (!authToken) {
+      throw new Error("No authentication token available");
+    }
 
-    const auth: WebSocketAuth = { token };
+    this.token = authToken;
+
+    const auth: WebSocketAuth = { token: authToken };
 
     this.socket = io(apiConfig.wsURL, {
       auth,
@@ -38,9 +61,11 @@ class WebSocketService {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
+      reconnectionDelayMax: 5000,
     });
 
     this.setupEventListeners();
+    this.registerPendingCallbacks();
   }
 
   /**
@@ -51,15 +76,72 @@ class WebSocketService {
 
     this.socket.on("connect", () => {
       console.log("WebSocket connected");
+      // Dispatch event for store to listen
+      window.dispatchEvent(new CustomEvent("websocket:connected"));
     });
 
     this.socket.on("disconnect", (reason) => {
       console.log("WebSocket disconnected:", reason);
+      // Dispatch event for store to listen
+      window.dispatchEvent(new CustomEvent("websocket:disconnected"));
     });
 
     this.socket.on("connect_error", (error) => {
       console.error("WebSocket connection error:", error);
+      // Dispatch event for store to listen
+      window.dispatchEvent(
+        new CustomEvent("websocket:error", {
+          detail: { message: error.message },
+        })
+      );
     });
+  }
+
+  /**
+   * Register pending callbacks that were queued before socket initialization
+   */
+  private registerPendingCallbacks(): void {
+    if (!this.socket) return;
+
+    // Register server-ack callbacks
+    if (this.pendingCallbacks.serverAck) {
+      this.pendingCallbacks.serverAck.forEach((callback) => {
+        this.socket!.on("server-ack", callback);
+      });
+      this.pendingCallbacks.serverAck = [];
+    }
+
+    // Register receive-answer callbacks
+    if (this.pendingCallbacks.receiveAnswer) {
+      this.pendingCallbacks.receiveAnswer.forEach((callback) => {
+        this.socket!.on("receive-answer", callback);
+      });
+      this.pendingCallbacks.receiveAnswer = [];
+    }
+
+    // Register error-message callbacks
+    if (this.pendingCallbacks.errorMessage) {
+      this.pendingCallbacks.errorMessage.forEach((callback) => {
+        this.socket!.on("error-message", callback);
+      });
+      this.pendingCallbacks.errorMessage = [];
+    }
+
+    // Register disconnect callbacks
+    if (this.pendingCallbacks.disconnect) {
+      this.pendingCallbacks.disconnect.forEach((callback) => {
+        this.socket!.on("disconnect", callback);
+      });
+      this.pendingCallbacks.disconnect = [];
+    }
+
+    // Register connect callbacks
+    if (this.pendingCallbacks.connect) {
+      this.pendingCallbacks.connect.forEach((callback) => {
+        this.socket!.on("connect", callback);
+      });
+      this.pendingCallbacks.connect = [];
+    }
   }
 
   /**
@@ -71,6 +153,8 @@ class WebSocketService {
       this.socket = null;
     }
     this.token = null;
+    // Clear pending callbacks
+    this.pendingCallbacks = {};
   }
 
   /**
@@ -82,6 +166,8 @@ class WebSocketService {
 
   /**
    * Ask question to AI chatbot
+   * Event: ask-question
+   * Payload: { question: string, chatSessionId?: string }
    */
   askQuestion(data: AskQuestionRequest): void {
     if (!this.socket?.connected) {
@@ -92,10 +178,17 @@ class WebSocketService {
 
   /**
    * Listen to server acknowledgment
+   * Event: server-ack
+   * Payload: { status: string }
    */
   onServerAck(callback: EventCallback<ServerAckResponse>): void {
     if (!this.socket) {
-      throw new Error("WebSocket is not initialized");
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.serverAck) {
+        this.pendingCallbacks.serverAck = [];
+      }
+      this.pendingCallbacks.serverAck.push(callback);
+      return;
     }
     this.socket.on("server-ack", callback);
   }
@@ -114,10 +207,17 @@ class WebSocketService {
 
   /**
    * Listen to receive answer event
+   * Event: receive-answer
+   * Payload: { answer: string, chatSessionId: string, messages: ChatMessage[] }
    */
   onReceiveAnswer(callback: EventCallback<ReceiveAnswerResponse>): void {
     if (!this.socket) {
-      throw new Error("WebSocket is not initialized");
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.receiveAnswer) {
+        this.pendingCallbacks.receiveAnswer = [];
+      }
+      this.pendingCallbacks.receiveAnswer.push(callback);
+      return;
     }
     this.socket.on("receive-answer", callback);
   }
@@ -136,10 +236,17 @@ class WebSocketService {
 
   /**
    * Listen to error message event
+   * Event: error-message
+   * Payload: { message: string }
    */
   onErrorMessage(callback: EventCallback<ErrorMessageResponse>): void {
     if (!this.socket) {
-      throw new Error("WebSocket is not initialized");
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.errorMessage) {
+        this.pendingCallbacks.errorMessage = [];
+      }
+      this.pendingCallbacks.errorMessage.push(callback);
+      return;
     }
     this.socket.on("error-message", callback);
   }
@@ -161,7 +268,12 @@ class WebSocketService {
    */
   onDisconnect(callback: () => void): void {
     if (!this.socket) {
-      throw new Error("WebSocket is not initialized");
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.disconnect) {
+        this.pendingCallbacks.disconnect = [];
+      }
+      this.pendingCallbacks.disconnect.push(callback);
+      return;
     }
     this.socket.on("disconnect", callback);
   }
@@ -183,7 +295,12 @@ class WebSocketService {
    */
   onConnect(callback: () => void): void {
     if (!this.socket) {
-      throw new Error("WebSocket is not initialized");
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.connect) {
+        this.pendingCallbacks.connect = [];
+      }
+      this.pendingCallbacks.connect.push(callback);
+      return;
     }
     this.socket.on("connect", callback);
   }
@@ -215,4 +332,3 @@ class WebSocketService {
 
 // Export singleton instance
 export const webSocketService = new WebSocketService();
-
