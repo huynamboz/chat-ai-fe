@@ -1,4 +1,5 @@
 import {heroui} from "@heroui/theme"
+import typography from "@tailwindcss/typography"
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -10,8 +11,33 @@ export default {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: "#23d375",
+          50: "#e8faf0",
+          100: "#d1f5e1",
+          200: "#a3ebc3",
+          300: "#75e1a5",
+          400: "#47d787",
+          500: "#23d375",
+          600: "#1ca95d",
+          700: "#157f45",
+          800: "#0e552e",
+          900: "#072a17",
+        },
+      },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "fade-in": "fadeIn 0.3s ease-in-out forwards",
+      },
+    },
   },
   darkMode: "class",
-  plugins: [heroui()],
+  plugins: [heroui(), typography()],
 }

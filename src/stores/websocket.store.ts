@@ -7,6 +7,7 @@ import { create } from "zustand";
 import { webSocketService } from "@/services/websocket.service";
 import type {
   ServerAckResponse,
+  ServerReportResponse,
   ReceiveAnswerResponse,
   ErrorMessageResponse,
 } from "@/types/api.types";
@@ -15,16 +16,19 @@ interface WebSocketState {
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
+  currentReport: string | null;
 
   // Actions
   setConnected: (connected: boolean) => void;
   setConnecting: (connecting: boolean) => void;
   setError: (error: string | null) => void;
+  setCurrentReport: (report: string | null) => void;
   connect: (token?: string) => void;
   disconnect: () => void;
 
   // Event handlers
   onServerAck: (data: ServerAckResponse) => void;
+  onServerReport: (data: ServerReportResponse) => void;
   onReceiveAnswer: (data: ReceiveAnswerResponse) => void;
   onErrorMessage: (data: ErrorMessageResponse) => void;
   onConnect: () => void;
@@ -64,6 +68,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => {
     isConnected: false,
     isConnecting: false,
     error: null,
+    currentReport: null,
 
     // Actions
     setConnected: (connected) => {
@@ -76,6 +81,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => {
 
     setError: (error) => {
       set({ error });
+    },
+
+    setCurrentReport: (report) => {
+      set({ currentReport: report });
     },
 
     connect: (token) => {
@@ -98,19 +107,32 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => {
 
     disconnect: () => {
       webSocketService.disconnect();
-      set({ isConnected: false, isConnecting: false, error: null });
+      set({
+        isConnected: false,
+        isConnecting: false,
+        error: null,
+        currentReport: null,
+      });
     },
 
     // Event handlers
     onServerAck: (data) => {
       console.log("Server acknowledgment:", data.status);
-      // You can add loading state here
+      // Set initial thinking state
+      set({ currentReport: "Thinking..." });
+    },
+
+    onServerReport: (data) => {
+      console.log("Server report:", data.report);
+      set({ currentReport: data.report });
     },
 
     onReceiveAnswer: (data) => {
       console.log("Receive answer:", data.answer);
       console.log("Session ID:", data.chatSessionId);
       console.log("Messages:", data.messages);
+      // Clear report when answer is received
+      set({ currentReport: null });
       // Messages will be handled by chat store
     },
 

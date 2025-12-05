@@ -11,6 +11,7 @@ import type {
   WebSocketAuth,
   AskQuestionRequest,
   ServerAckResponse,
+  ServerReportResponse,
   ReceiveAnswerResponse,
   ErrorMessageResponse,
 } from "@/types/api.types";
@@ -22,6 +23,7 @@ class WebSocketService {
   private token: string | null = null;
   private pendingCallbacks: {
     serverAck?: EventCallback<ServerAckResponse>[];
+    serverReport?: EventCallback<ServerReportResponse>[];
     receiveAnswer?: EventCallback<ReceiveAnswerResponse>[];
     errorMessage?: EventCallback<ErrorMessageResponse>[];
     disconnect?: (() => void)[];
@@ -109,6 +111,14 @@ class WebSocketService {
         this.socket!.on("server-ack", callback);
       });
       this.pendingCallbacks.serverAck = [];
+    }
+
+    // Register server-report callbacks
+    if (this.pendingCallbacks.serverReport) {
+      this.pendingCallbacks.serverReport.forEach((callback) => {
+        this.socket!.on("server-report", callback);
+      });
+      this.pendingCallbacks.serverReport = [];
     }
 
     // Register receive-answer callbacks
@@ -202,6 +212,35 @@ class WebSocketService {
       this.socket.off("server-ack", callback);
     } else {
       this.socket.off("server-ack");
+    }
+  }
+
+  /**
+   * Listen to server report event
+   * Event: server-report
+   * Payload: { report: string }
+   */
+  onServerReport(callback: EventCallback<ServerReportResponse>): void {
+    if (!this.socket) {
+      // Queue callback to be registered when socket is initialized
+      if (!this.pendingCallbacks.serverReport) {
+        this.pendingCallbacks.serverReport = [];
+      }
+      this.pendingCallbacks.serverReport.push(callback);
+      return;
+    }
+    this.socket.on("server-report", callback);
+  }
+
+  /**
+   * Remove server report listener
+   */
+  offServerReport(callback?: EventCallback<ServerReportResponse>): void {
+    if (!this.socket) return;
+    if (callback) {
+      this.socket.off("server-report", callback);
+    } else {
+      this.socket.off("server-report");
     }
   }
 
@@ -317,6 +356,9 @@ class WebSocketService {
     }
   }
 
+  /**
+   * Remove all listeners for a specific event
+   */
   /**
    * Remove all listeners for a specific event
    */

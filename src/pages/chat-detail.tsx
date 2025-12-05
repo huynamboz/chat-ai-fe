@@ -1,31 +1,43 @@
+import type { ReceiveAnswerResponse } from "@/types/api.types";
+
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
+import { Loader } from "lucide-react";
 
 import { Sidebar } from "@/components/sidebar";
 import { SendIcon } from "@/components/icons";
+import { MessageContent } from "@/components/message-content";
 import { useChatStore } from "@/stores/chat.store";
 import { useWebSocket } from "@/hooks/use-websocket";
+import { useWebSocketStore } from "@/stores/websocket.store";
 import { useAuth } from "@/contexts/auth.context";
 import { webSocketService } from "@/services/websocket.service";
 import { useConversations } from "@/hooks/use-conversations";
-import type { ReceiveAnswerResponse } from "@/types/api.types";
 
 export default function ChatDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { isConnected, askQuestion } = useWebSocket();
-  const { selectChatSession, getMessagesBySession, getSelectedSession, addMessage } =
-    useChatStore();
+  const currentReport = useWebSocketStore((state) => state.currentReport);
+  const {
+    selectChatSession,
+    getMessagesBySession,
+    getSelectedSession,
+    addMessage,
+  } = useChatStore();
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [displayText, setDisplayText] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load conversations and messages
   const { loadMessagesForSession } = useConversations();
-  const selectedChatSessionId = useChatStore((state) => state.selectedChatSessionId);
+  const selectedChatSessionId = useChatStore(
+    (state) => state.selectedChatSessionId,
+  );
 
   // Select chat session when component mounts and load messages
   useEffect(() => {
@@ -39,7 +51,6 @@ export default function ChatDetailPage() {
     if (id) {
       loadMessagesForSession(id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const selectedSession = getSelectedSession();
@@ -53,6 +64,16 @@ export default function ChatDetailPage() {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Update display text with fade effect when currentReport changes
+  useEffect(() => {
+    if (currentReport) {
+      // Update display text directly - animation will handle fade
+      setDisplayText(currentReport);
+    } else {
+      setDisplayText("");
+    }
+  }, [currentReport]);
+
   const handleNewChat = () => {
     navigate("/");
   };
@@ -63,7 +84,11 @@ export default function ChatDetailPage() {
 
   const handleSend = async () => {
     const question = message.trim();
+
     if (!question || !isConnected || isLoading || !id) return;
+
+    // Reset report when starting new question
+    useWebSocketStore.getState().setCurrentReport(null);
 
     // Add user message to store immediately
     const userMessage = {
@@ -113,17 +138,26 @@ export default function ChatDetailPage() {
       }
     };
 
+    const handleServerReport = () => {
+      // Report is handled by store, just ensure loading state
+      if (!isLoading) {
+        setIsLoading(true);
+      }
+    };
+
     const handleErrorMessage = (data: { message: string }) => {
       setIsLoading(false);
       console.error("WebSocket error:", data.message);
     };
 
     webSocketService.onServerAck(handleServerAck);
+    webSocketService.onServerReport(handleServerReport);
     webSocketService.onReceiveAnswer(handleReceiveAnswer);
     webSocketService.onErrorMessage(handleErrorMessage);
 
     return () => {
       webSocketService.offServerAck(handleServerAck);
+      webSocketService.offServerReport(handleServerReport);
       webSocketService.offReceiveAnswer(handleReceiveAnswer);
       webSocketService.offErrorMessage(handleErrorMessage);
     };
@@ -131,7 +165,7 @@ export default function ChatDetailPage() {
 
   return (
     <div className="flex h-screen w-full bg-white dark:bg-gray-950">
-      <Sidebar onNewChat={handleNewChat} onChatSelect={handleChatSelect} />
+      <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
       <div className="flex-1 flex flex-col">
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-y-auto">
@@ -147,7 +181,9 @@ export default function ChatDetailPage() {
                     <div
                       key={message._id}
                       className={`flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
+                        message.role === "user"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
@@ -157,14 +193,19 @@ export default function ChatDetailPage() {
                             : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         }`}
                       >
-                        <div className="text-sm whitespace-pre-wrap">
-                          {message.content}
-                        </div>
+                        <MessageContent
+                          className={
+                            message.role === "user"
+                              ? "text-white prose-invert"
+                              : "text-gray-900"
+                          }
+                          content={message.content}
+                        />
                         <div
                           className={`text-xs mt-1 ${
                             message.role === "user"
                               ? "text-gray-400"
-                              : "text-gray-500 dark:text-gray-400"
+                              : "text-gray-500"
                           }`}
                         >
                           {new Date(message.createdAt).toLocaleTimeString()}
@@ -174,14 +215,25 @@ export default function ChatDetailPage() {
                   ))
                 )}
                 {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-2">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75" />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150" />
+                  <div className="flex flex-col justify-start">
+                    <div className="rounded-lg px-4 py-3 flex items-center gap-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm italic font-medium text-gray-700 dark:text-gray-200">
+                          Thinking...
+                        </div>
                       </div>
                     </div>
+                    {displayText && displayText !== "Thinking..." && (
+                      <div className="flex items-center gap-2">
+                        <Loader className="w-5 h-5 text-gray-500 dark:text-gray-400 animate-spin flex-shrink-0" />
+                        <div
+                          key={displayText}
+                          className="text-xs text-gray-500 dark:text-gray-400 animate-fade-in"
+                        >
+                          {displayText}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -194,7 +246,7 @@ export default function ChatDetailPage() {
                   Chat not found
                 </h2>
                 <p className="text-gray-500 dark:text-gray-500">
-                  The chat session you're looking for doesn't exist.
+                  The chat session you&apos;re looking for doesn&apos;t exist.
                 </p>
               </div>
             </div>
@@ -210,21 +262,24 @@ export default function ChatDetailPage() {
                   aria-label="Message input"
                   classNames={{
                     base: "flex-1",
-                    inputWrapper: "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-lg",
+                    inputWrapper:
+                      "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-lg",
                     input: "text-base py-4",
                   }}
+                  disabled={!isConnected || isLoading}
                   placeholder="Message..."
-                  variant="bordered"
                   value={message}
+                  variant="bordered"
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  disabled={!isConnected || isLoading}
                 />
                 <Button
-                  className="min-w-10 h-10 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
                   isIconOnly
+                  className="min-w-10 h-10 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
+                  isDisabled={
+                    !isConnected || isLoading || !message.trim() || !id
+                  }
                   onPress={handleSend}
-                  isDisabled={!isConnected || isLoading || !message.trim() || !id}
                 >
                   <SendIcon className="w-5 h-5" />
                 </Button>

@@ -70,7 +70,7 @@ export default function LoginPage() {
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-blue-500 rounded-2xl shadow-lg">
+            <div className="p-4 bg-primary rounded-2xl shadow-lg">
               <HealthIcon className="w-12 h-12 text-white" />
             </div>
           </div>
@@ -78,10 +78,10 @@ export default function LoginPage() {
             Health AI Assistant
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Hỗ trợ tư vấn kiến thức y tế
+            Health knowledge consultation support
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-            Đăng nhập để tiếp tục
+            Sign in to continue
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
             <Input
               label="Email"
               type="email"
-              placeholder="Nhập email của bạn"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               isInvalid={!!emailError}
@@ -104,7 +104,7 @@ export default function LoginPage() {
               classNames={{
                 base: "w-full",
                 inputWrapper:
-                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors",
+                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors",
                 input: "text-gray-900 dark:text-white",
                 label: "text-gray-700 dark:text-gray-300",
               }}
@@ -115,9 +115,9 @@ export default function LoginPage() {
             />
 
             <Input
-              label="Mật khẩu"
+              label="Password"
               type="password"
-              placeholder="Nhập mật khẩu của bạn"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               isInvalid={!!passwordError}
@@ -125,7 +125,7 @@ export default function LoginPage() {
               classNames={{
                 base: "w-full",
                 inputWrapper:
-                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors",
+                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors",
                 input: "text-gray-900 dark:text-white",
                 label: "text-gray-700 dark:text-gray-300",
               }}
@@ -137,24 +137,24 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-blue-500 text-white font-semibold shadow-lg hover:bg-blue-600 hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
+              className="w-full bg-primary text-white font-semibold shadow-lg hover:bg-primary-600 hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
               isLoading={isLoading}
               isDisabled={isLoading}
               size="lg"
             >
-              {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </div>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Chưa có tài khoản?{" "}
+            Don&apos;t have an account?{" "}
             <Link
+              className="text-primary font-semibold hover:text-primary-600 transition-colors"
               to="/register"
-              className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
             >
-              Đăng ký ngay
+              Sign up now
             </Link>
           </p>
         </div>

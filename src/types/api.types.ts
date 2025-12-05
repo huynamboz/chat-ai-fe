@@ -146,6 +146,10 @@ export interface ServerAckResponse {
   status: string;
 }
 
+export interface ServerReportResponse {
+  report: string;
+}
+
 export interface ReceiveAnswerResponse {
   answer: string;
   chatSessionId: string;

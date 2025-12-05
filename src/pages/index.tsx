@@ -5,6 +5,7 @@ import { Input } from "@heroui/input";
 
 import { Sidebar } from "@/components/sidebar";
 import { SendIcon } from "@/components/icons";
+import { MessageContent } from "@/components/message-content";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useChatStore } from "@/stores/chat.store";
 import { useAuth } from "@/contexts/auth.context";
@@ -156,14 +157,19 @@ export default function IndexPage() {
                           : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       }`}
                     >
-                      <div className="text-sm whitespace-pre-wrap">
-                        {msg.content}
-                      </div>
+                      <MessageContent
+                        className={
+                          msg.role === "user"
+                            ? "text-white prose-invert"
+                            : "text-gray-900"
+                        }
+                        content={msg.content}
+                      />
                       <div
                         className={`text-xs mt-1 ${
                           msg.role === "user"
                             ? "text-gray-400"
-                            : "text-gray-500 dark:text-gray-400"
+                            : "text-gray-500"
                         }`}
                       >
                         {new Date(msg.createdAt).toLocaleTimeString()}

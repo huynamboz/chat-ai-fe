@@ -1,10 +1,11 @@
+import type { ApiError } from "@/types/api.types";
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 
 import { useAuth } from "@/contexts/auth.context";
-import type { ApiError } from "@/types/api.types";
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
@@ -17,10 +18,13 @@ export default function RegisterPage() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
 
   const validateForm = (): boolean => {
     let isValid = true;
+
     setUsernameError(null);
     setEmailError(null);
     setPasswordError(null);
@@ -80,6 +84,7 @@ export default function RegisterPage() {
       // Redirect is handled by auth context
     } catch (err) {
       const apiError = err as ApiError;
+
       setError(apiError.error || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -98,7 +103,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
@@ -106,79 +111,83 @@ export default function RegisterPage() {
           )}
 
           <Input
-            label="Username"
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            isInvalid={!!usernameError}
-            errorMessage={usernameError}
-            classNames={{
-              inputWrapper: "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            variant="bordered"
-            isDisabled={isLoading}
             autoComplete="username"
+            classNames={{
+              inputWrapper:
+                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+              input: "text-gray-900 dark:text-white",
+            }}
+            errorMessage={usernameError}
+            isDisabled={isLoading}
+            isInvalid={!!usernameError}
+            label="Username"
+            placeholder="Enter your username"
+            type="text"
+            value={username}
+            variant="bordered"
+            onChange={(e) => setUsername(e.target.value)}
           />
 
           <Input
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            isInvalid={!!emailError}
-            errorMessage={emailError}
-            classNames={{
-              inputWrapper: "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            variant="bordered"
-            isDisabled={isLoading}
             autoComplete="email"
+            classNames={{
+              inputWrapper:
+                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+              input: "text-gray-900 dark:text-white",
+            }}
+            errorMessage={emailError}
+            isDisabled={isLoading}
+            isInvalid={!!emailError}
+            label="Email"
+            placeholder="Enter your email"
+            type="email"
+            value={email}
+            variant="bordered"
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <Input
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            isInvalid={!!passwordError}
+            autoComplete="new-password"
+            classNames={{
+              inputWrapper:
+                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+              input: "text-gray-900 dark:text-white",
+            }}
             errorMessage={passwordError}
-            classNames={{
-              inputWrapper: "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            variant="bordered"
             isDisabled={isLoading}
-            autoComplete="new-password"
+            isInvalid={!!passwordError}
+            label="Password"
+            placeholder="Enter your password"
+            type="password"
+            value={password}
+            variant="bordered"
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <Input
-            label="Confirm Password"
-            type="password"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            isInvalid={!!confirmPasswordError}
-            errorMessage={confirmPasswordError}
+            autoComplete="new-password"
             classNames={{
-              inputWrapper: "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+              inputWrapper:
+                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
               input: "text-gray-900 dark:text-white",
             }}
-            variant="bordered"
+            errorMessage={confirmPasswordError}
             isDisabled={isLoading}
-            autoComplete="new-password"
+            isInvalid={!!confirmPasswordError}
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            type="password"
+            value={confirmPassword}
+            variant="bordered"
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
           <Button
-            type="submit"
-            className="w-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium"
-            isLoading={isLoading}
+            className="w-full bg-primary text-white font-medium hover:bg-primary-600"
             isDisabled={isLoading}
+            isLoading={isLoading}
             size="lg"
+            type="submit"
           >
             {isLoading ? "Creating account..." : "Sign up"}
           </Button>
@@ -188,8 +197,8 @@ export default function RegisterPage() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
             <Link
-              to="/login"
               className="text-gray-900 dark:text-white font-medium hover:underline"
+              to="/login"
             >
               Sign in
             </Link>
@@ -199,4 +208,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

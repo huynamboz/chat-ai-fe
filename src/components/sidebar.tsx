@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -7,6 +8,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
+import { addToast } from "@heroui/toast";
 
 import {
   PlusIcon,
@@ -15,10 +17,13 @@ import {
   SettingsIcon,
   UserIcon,
   LogoutIcon,
+  DeleteIcon,
 } from "@/components/icons";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/contexts/auth.context";
 import { useChatStore } from "@/stores/chat.store";
 import { useConversations } from "@/hooks/use-conversations";
+import { chatSessionService } from "@/services/chat-session.service";
 
 interface SidebarProps {
   onNewChat?: () => void;
@@ -30,11 +35,19 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   const navigate = useNavigate();
 
   // Get chat sessions and selected session from store
-  const { chatSessions, selectedChatSessionId, selectChatSession } =
-    useChatStore();
+  const {
+    chatSessions,
+    selectedChatSessionId,
+    selectChatSession,
+    deleteChatSession,
+  } = useChatStore();
 
   // Load conversations from API
   useConversations();
+
+  // Dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
   // Filter out deleted sessions
   const activeSessions = chatSessions.filter((session) => !session.isDeleted);
@@ -51,6 +64,53 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
     selectChatSession(null);
     onNewChat?.();
     navigate("/");
+  };
+
+  // Handle delete button click
+  const handleDeleteClick = (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation(); // Prevent chat selection
+    setSessionToDelete(sessionId);
+    setDeleteDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = async () => {
+    if (!sessionToDelete) return;
+
+    try {
+      // Call API to soft delete
+      await chatSessionService.softDelete(sessionToDelete);
+
+      // Update store
+      deleteChatSession(sessionToDelete);
+
+      // If deleted session is currently selected, navigate to home
+      if (selectedChatSessionId === sessionToDelete) {
+        selectChatSession(null);
+        navigate("/");
+      }
+
+      // Show success toast
+      addToast({
+        title: "Deleted successfully",
+        description: "Conversation has been deleted.",
+        color: "success",
+        severity: "success",
+      });
+
+      setSessionToDelete(null);
+    } catch (error) {
+      // Show error toast
+      addToast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete conversation. Please try again.",
+        color: "danger",
+        severity: "danger",
+      });
+    }
   };
 
   return (
@@ -97,17 +157,28 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
               </div>
             ) : (
               activeSessions.map((session) => (
-                <button
+                <div
                   key={session._id}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors text-sm ${
+                  className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm ${
                     selectedChatSessionId === session._id
                       ? "bg-gray-800"
                       : "hover:bg-gray-800/50"
                   }`}
-                  onClick={() => handleChatSelect(session._id)}
                 >
-                  <div className="truncate">{session.title}</div>
-                </button>
+                  <button
+                    className="flex-1 text-left truncate"
+                    onClick={() => handleChatSelect(session._id)}
+                  >
+                    <div className="truncate">{session.title}</div>
+                  </button>
+                  <button
+                    aria-label="Delete conversation"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-700 rounded"
+                    onClick={(e) => handleDeleteClick(e, session._id)}
+                  >
+                    <DeleteIcon className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                  </button>
+                </div>
               ))
             )}
           </div>
@@ -182,6 +253,21 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
           </DropdownMenu>
         </Dropdown>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        cancelText="Cancel"
+        confirmColor="danger"
+        confirmText="Delete"
+        isOpen={deleteDialogOpen}
+        message="Are you sure you want to delete this conversation? This action cannot be undone."
+        title="Delete Conversation"
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setSessionToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 };

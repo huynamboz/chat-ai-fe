@@ -2,6 +2,7 @@ import type { NavigateOptions } from "react-router-dom";
 
 import { HeroUIProvider } from "@heroui/system";
 import { useHref, useNavigate } from "react-router-dom";
+import { ToastProvider } from "@heroui/toast";
 import { AuthProvider } from "@/contexts/auth.context";
 import { WebSocketProvider } from "@/components/websocket-provider";
 
@@ -16,9 +17,10 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
-      <AuthProvider>
-        <WebSocketProvider>{children}</WebSocketProvider>
-      </AuthProvider>
+      <ToastProvider placement="top-center"/>
+        <AuthProvider>
+          <WebSocketProvider>{children}</WebSocketProvider>
+        </AuthProvider>
     </HeroUIProvider>
   );
 }
