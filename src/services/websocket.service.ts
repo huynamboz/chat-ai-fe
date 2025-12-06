@@ -4,9 +4,6 @@
  * Based on API Documentation
  */
 
-import { io, Socket } from "socket.io-client";
-import { apiConfig } from "@/config/api.config";
-import { apiClient } from "@/lib/api-client";
 import type {
   WebSocketAuth,
   AskQuestionRequest,
@@ -16,11 +13,15 @@ import type {
   ErrorMessageResponse,
 } from "@/types/api.types";
 
+import { io, Socket } from "socket.io-client";
+
+import { apiConfig } from "@/config/api.config";
+import { apiClient } from "@/lib/api-client";
+
 type EventCallback<T> = (data: T) => void;
 
 class WebSocketService {
   private socket: Socket | null = null;
-  private token: string | null = null;
   private pendingCallbacks: {
     serverAck?: EventCallback<ServerAckResponse>[];
     serverReport?: EventCallback<ServerReportResponse>[];
@@ -38,9 +39,10 @@ class WebSocketService {
     // Prevent multiple connections
     if (this.socket?.connected) {
       console.warn("WebSocket already connected");
+
       return;
     }
-    
+
     // If socket exists but not connected, disconnect first
     if (this.socket) {
       this.socket.disconnect();
@@ -49,6 +51,7 @@ class WebSocketService {
 
     // Get token from parameter or API client
     const authToken = token || apiClient.getToken();
+
     if (!authToken) {
       throw new Error("No authentication token available");
     }
@@ -94,7 +97,7 @@ class WebSocketService {
       window.dispatchEvent(
         new CustomEvent("websocket:error", {
           detail: { message: error.message },
-        })
+        }),
       );
     });
   }
@@ -198,6 +201,7 @@ class WebSocketService {
         this.pendingCallbacks.serverAck = [];
       }
       this.pendingCallbacks.serverAck.push(callback);
+
       return;
     }
     this.socket.on("server-ack", callback);
@@ -227,6 +231,7 @@ class WebSocketService {
         this.pendingCallbacks.serverReport = [];
       }
       this.pendingCallbacks.serverReport.push(callback);
+
       return;
     }
     this.socket.on("server-report", callback);
@@ -256,6 +261,7 @@ class WebSocketService {
         this.pendingCallbacks.receiveAnswer = [];
       }
       this.pendingCallbacks.receiveAnswer.push(callback);
+
       return;
     }
     this.socket.on("receive-answer", callback);
@@ -285,6 +291,7 @@ class WebSocketService {
         this.pendingCallbacks.errorMessage = [];
       }
       this.pendingCallbacks.errorMessage.push(callback);
+
       return;
     }
     this.socket.on("error-message", callback);
@@ -312,6 +319,7 @@ class WebSocketService {
         this.pendingCallbacks.disconnect = [];
       }
       this.pendingCallbacks.disconnect.push(callback);
+
       return;
     }
     this.socket.on("disconnect", callback);
@@ -339,6 +347,7 @@ class WebSocketService {
         this.pendingCallbacks.connect = [];
       }
       this.pendingCallbacks.connect.push(callback);
+
       return;
     }
     this.socket.on("connect", callback);
