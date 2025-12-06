@@ -250,18 +250,18 @@ export default function IndexPage() {
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex-1 bg-white/60 border border-slate-200 shadow-sm px-8 pt-5 pb-5 flex flex-col h-screen">
             {/* Header */}
-            {/* <header className="flex items-center justify-between mb-6">
+            <header className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <h1 className="text-lg font-semibold text-slate-900">
-                  Orbita GPT
+                  AKE Intelligence
                 </h1>
-                <span className="inline-flex items-center rounded-full bg-slate-900 text-white text-[11px] px-2 py-0.5">
+                <span className="inline-flex items-center rounded-full bg-[#1d844b] text-white text-[11px] px-2 py-0.5">
                   Plus
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
-                <button
+                {/* <button
                   className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs text-slate-700 hover:bg-slate-50 transition"
                   type="button"
                 >
@@ -272,16 +272,16 @@ export default function IndexPage() {
                   type="button"
                 >
                   Share
-                </button>
-                <button
+                </button> */}
+                {/* <button
                   className="px-4 py-1.5 rounded-full bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition"
                   type="button"
                   onClick={handleNewChat}
                 >
                   New Chat
-                </button>
+                </button> */}
               </div>
-            </header> */}
+            </header>
 
             {/* Messages / content area */}
             <div className="flex-1 flex flex-col overflow-y-auto">

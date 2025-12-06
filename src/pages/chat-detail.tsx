@@ -3,7 +3,8 @@ import type { ReceiveAnswerResponse } from "@/types/api.types";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, Loader } from "lucide-react";
-import {ScrollShadow} from "@heroui/scroll-shadow";
+import { ScrollShadow } from "@heroui/scroll-shadow";
+
 import { Sidebar } from "@/components/sidebar";
 import { ChatInput } from "@/components/chat-input";
 import { ChatMessageItem } from "@/components/chat-message-item";
@@ -205,13 +206,61 @@ export default function ChatDetailPage() {
     <div className="flex h-screen w-full bg-white">
       <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
       <div className="bg-slate-50/50 border border-slate-200 shadow-sm px-8 pt-5 flex flex-1 flex-col">
+        <header className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold text-slate-900">
+              AKE Intelligence
+            </h1>
+            <span className="inline-flex items-center rounded-full bg-[#1d844b] text-white text-[11px] px-2 py-0.5">
+              Plus
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-xs text-slate-700 hover:bg-slate-50 transition"
+              type="button"
+            >
+              active
+            </button>
+            <button
+              className="px-4 cursor-pointer flex items-center gap-2 py-1.5 rounded-full bg-[#1d844b] text-white text-xs font-medium hover:bg-slate-800 transition"
+              type="button"
+              onClick={handleNewChat}
+            >
+              <svg
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M15.635 2.124c.327-.832 1.503-.832 1.83 0l.428 1.09l1.084.429c.83.328.83 1.504 0 1.832l-1.084.43l-.428 1.089c-.327.832-1.503.832-1.83 0l-.428-1.09l-1.085-.429c-.83-.328-.83-1.504 0-1.832l1.085-.43zm.915.406l.415 1.055c.1.254.3.455.553.556l1.057.418l-1.057.419a.98.98 0 0 0-.553.555l-.415 1.055l-.415-1.055a.98.98 0 0 0-.554-.555l-1.057-.419l1.057-.418a.98.98 0 0 0 .554-.556zm-13.236.784a3.633 3.633 0 0 1 5.139 0l12.233 12.233a3.633 3.633 0 0 1-5.139 5.139L3.314 8.453a3.633 3.633 0 0 1 0-5.139m4.078 1.06a2.133 2.133 0 1 0-3.017 3.018L5.96 8.978l3.017-3.017zm9.216 15.251L7.022 10.04l3.017-3.017l9.586 9.586a2.133 2.133 0 1 1-3.017 3.017m4.724-10.679c-.327-.833-1.503-.833-1.83 0l-.155.393l-.391.155c-.83.328-.83 1.504 0 1.832l.391.155l.155.394c.327.832 1.503.832 1.83 0l.154-.394l.392-.155c.83-.328.83-1.504 0-1.832l-.392-.155zm-.915.405l-.141.36c-.1.253-.3.455-.554.555l-.364.144l.364.144c.254.1.454.302.554.555l.14.36l.142-.36c.1-.253.3-.454.554-.555l.364-.144l-.364-.144a.98.98 0 0 1-.554-.555zM4.668 15.124c.327-.832 1.503-.832 1.83 0l.155.394l.39.154c.83.329.83 1.505 0 1.833l-.39.155l-.155.393c-.327.833-1.503.833-1.83 0l-.155-.393l-.391-.155c-.83-.328-.83-1.504 0-1.832l.391-.155zm.774.765l.14-.36l.142.36c.1.254.3.455.554.556l.364.144l-.364.144a.98.98 0 0 0-.554.555l-.141.36l-.141-.36a.98.98 0 0 0-.554-.555l-.364-.144l.364-.144a.98.98 0 0 0 .554-.556"
+                  fill="currentColor"
+                  fillRule="evenodd"
+                />
+              </svg>
+              New Chat
+            </button>
+          </div>
+        </header>
         {/* Main Content Area */}
-        <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
+        <ScrollShadow
+          hideScrollBar
+          className="flex-1 flex flex-col overflow-y-auto"
+        >
           {selectedSession ? (
-            <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
+            <ScrollShadow
+              hideScrollBar
+              className="flex-1 flex flex-col overflow-y-auto"
+            >
               <div className="max-w-3xl mx-auto space-y-4">
                 {messages.length === 0 ? (
-                  <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
+                  <ScrollShadow
+                    hideScrollBar
+                    className="flex-1 flex flex-col overflow-y-auto"
+                  >
                     <div className="text-center text-gray-500 py-8">
                       No messages yet. Start the conversation!
                     </div>
@@ -344,7 +393,7 @@ export default function ChatDetailPage() {
 
         {/* Input Area - Only show if session exists */}
         {selectedSession && (
-          <div className="p-4">
+          <div className="p-4 pt-0">
             <div className="max-w-3xl mx-auto">
               <ChatInput
                 isConnected={isConnected}

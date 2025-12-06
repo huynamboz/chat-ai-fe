@@ -37,6 +37,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Filter out deleted sessions
@@ -184,13 +185,14 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   return (
     <div className="flex flex-col h-full w-64 bg-white p-4">
       {/* Logo + Title */}
-      <div className="flex items-center gap-3 mb-4">
-        <span className="text-lg font-semibold text-slate-900">Spoke Intelligence</span>
+      <div className="flex items-center gap-1 mb-4">
+        <img src="https://devmock.dev/assets/images/logo.png" alt="" className="w-6 h-6" />
+        <span className="text-lg font-semibold text-slate-900">AKE</span>
       </div>
 
       {/* New Chat button */}
       <button
-        className="mb-6 w-full flex items-center justify-center gap-2 rounded-full bg-sky-700 text-white py-2.5 text-sm font-medium hover:bg-sky-700 transition"
+        className="mb-6 w-full bg-gray-100 flex justify-center items-center px-5 cursor-pointer gap-2 hover:bg-gray-200 rounded-full py-2.5 text-sm font-medium transition"
         onClick={handleNewChat}
         type="button"
       >
@@ -199,6 +201,21 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
         </span>
         <span>New Chat</span>
       </button>
+
+      {/* Search conversations */}
+      <div className="mb-4">
+        <Input
+          classNames={{
+            base: "w-full",
+            input: "text-sm",
+            inputWrapper: "h-9 min-h-0 bg-slate-50 border-slate-200",
+          }}
+          placeholder="Search conversations"
+          size="sm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
       {/* Saved static section */}
       {/* <div className="mb-6">
@@ -246,22 +263,34 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
           const yesterdayStart = new Date(today);
           yesterdayStart.setDate(today.getDate() - 1);
 
+          const normalizedSearch = searchTerm.trim().toLowerCase();
+
+          const matchesSearch = (session: (typeof activeSessions)[number]) => {
+            if (!normalizedSearch) return true;
+
+            return session.title.toLowerCase().includes(normalizedSearch);
+          };
+
           const todaySessions = activeSessions.filter((session) => {
             const created = new Date(session.createdAt);
 
-            return created >= today;
+            return created >= today && matchesSearch(session);
           });
 
           const yesterdaySessions = activeSessions.filter((session) => {
             const created = new Date(session.createdAt);
 
-            return created >= yesterdayStart && created < today;
+            return (
+              created >= yesterdayStart &&
+              created < today &&
+              matchesSearch(session)
+            );
           });
 
           const earlierSessions = activeSessions.filter((session) => {
             const created = new Date(session.createdAt);
 
-            return created < yesterdayStart;
+            return created < yesterdayStart && matchesSearch(session);
           });
 
           const sections = [
