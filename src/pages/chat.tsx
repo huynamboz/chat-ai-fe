@@ -18,12 +18,8 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen w-full">
-      <Sidebar
-        onNewChat={handleNewChat}
-        onChatSelect={handleChatSelect}
-        selectedChatId={selectedChatId}
-      />
-      <div className="flex-1 flex items-center justify-center bg-default-50 dark:bg-default-100">
+      <Sidebar onNewChat={handleNewChat} onChatSelect={handleChatSelect} />
+      <div className="flex-1 flex items-center justify-center bg-default-50">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-default-600 mb-2">
             {selectedChatId

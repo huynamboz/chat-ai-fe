@@ -10,13 +10,11 @@ import { useAuth } from "@/contexts/auth.context";
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmPasswordError, setConfirmPasswordError] = useState<
@@ -26,40 +24,15 @@ export default function RegisterPage() {
   const validateForm = (): boolean => {
     let isValid = true;
 
-    setUsernameError(null);
     setEmailError(null);
     setPasswordError(null);
     setConfirmPasswordError(null);
-
-    if (!username.trim()) {
-      setUsernameError("Username is required");
-      isValid = false;
-    } else if (username.trim().length < 3) {
-      setUsernameError("Username must be at least 3 characters");
-      isValid = false;
-    }
 
     if (!email.trim()) {
       setEmailError("Email is required");
       isValid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError("Please enter a valid email address");
-      isValid = false;
-    }
-
-    if (!password) {
-      setPasswordError("Password is required");
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
-      isValid = false;
-    }
-
-    if (!confirmPassword) {
-      setConfirmPasswordError("Please confirm your password");
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
       isValid = false;
     }
 
@@ -77,9 +50,13 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      const trimmedEmail = email.trim();
+      const derivedUsername =
+        trimmedEmail.split("@")[0]?.trim() || trimmedEmail;
+
       await signUp({
-        username: username.trim(),
-        email: email.trim(),
+        username: derivedUsername,
+        email: trimmedEmail,
         password,
       });
       // Redirect is handled by auth context
@@ -122,29 +99,11 @@ export default function RegisterPage() {
                 )}
 
                 <Input
-                  autoComplete="username"
-                  classNames={{
-                    inputWrapper:
-                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-                    input: "text-gray-900 dark:text-white",
-                  }}
-                  errorMessage={usernameError || undefined}
-                  isDisabled={isLoading}
-                  isInvalid={!!usernameError}
-                  label="Username"
-                  placeholder="Enter your username"
-                  type="text"
-                  value={username}
-                  variant="bordered"
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-
-                <Input
                   autoComplete="email"
                   classNames={{
                     inputWrapper:
-                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-                    input: "text-gray-900 dark:text-white",
+                      "bg-white border-gray-300",
+                    input: "text-gray-900",
                   }}
                   errorMessage={emailError || undefined}
                   isDisabled={isLoading}
@@ -161,8 +120,8 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   classNames={{
                     inputWrapper:
-                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-                    input: "text-gray-900 dark:text-white",
+                      "bg-white border-gray-300",
+                    input: "text-gray-900",
                   }}
                   errorMessage={passwordError || undefined}
                   isDisabled={isLoading}
@@ -179,8 +138,8 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   classNames={{
                     inputWrapper:
-                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-                    input: "text-gray-900 dark:text-white",
+                      "bg-white border-gray-300",
+                    input: "text-gray-900",
                   }}
                   errorMessage={confirmPasswordError || undefined}
                   isDisabled={isLoading}
@@ -217,7 +176,7 @@ export default function RegisterPage() {
       <div className="relative hidden bg-muted lg:block">
         <img
           alt="Register illustration"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          className="absolute inset-0 h-full w-full object-cover"
           src="/bg.jpg"
         />
       </div>

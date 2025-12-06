@@ -17,9 +17,7 @@ export const ChatMessageItem = ({
     <div className="space-y-1">
       {thinkingTimeText && (
         <div className="flex justify-start">
-          <div className="text-xs text-gray-500 dark:text-gray-400 px-2">
-            {thinkingTimeText}
-          </div>
+          <div className="text-xs text-gray-500 px-2">{thinkingTimeText}</div>
         </div>
       )}
       <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -44,5 +42,3 @@ export const ChatMessageItem = ({
     </div>
   );
 };
-
-

@@ -16,10 +16,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (isLoading) {
     // Show loading state while checking authentication
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-950">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 dark:border-gray-100 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent" />
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     );

@@ -202,7 +202,7 @@ export default function ChatDetailPage() {
   }, [isAuthenticated, id]);
 
   return (
-    <div className="flex h-screen w-full dark:bg-gray-950">
+    <div className="flex h-screen w-full bg-white">
       <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
       <div className="bg-slate-50/50 border border-slate-200 shadow-sm px-8 pt-5 flex flex-1 flex-col">
         {/* Main Content Area */}
@@ -212,7 +212,7 @@ export default function ChatDetailPage() {
               <div className="max-w-3xl mx-auto space-y-4">
                 {messages.length === 0 ? (
                   <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
-                    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                    <div className="text-center text-gray-500 py-8">
                       No messages yet. Start the conversation!
                     </div>
                   </ScrollShadow>
@@ -245,7 +245,7 @@ export default function ChatDetailPage() {
                           <div className="flex flex-col gap-1 flex-1">
                             <div className="text-sm italic font-medium relative inline-block">
                               <span
-                                className="bg-gradient-to-r from-gray-700 from-0% via-gray-300 via-50% to-gray-700 to-100% dark:from-gray-200 dark:via-gray-400 dark:to-gray-200 bg-[length:200%_100%] bg-clip-text text-transparent animate-skeleton"
+                                className="bg-gradient-to-r from-gray-700 from-0% via-gray-300 via-50% to-gray-700 to-100% bg-[length:200%_100%] bg-clip-text text-transparent animate-skeleton"
                                 style={{
                                   WebkitBackgroundClip: "text",
                                 }}
@@ -255,10 +255,10 @@ export default function ChatDetailPage() {
                             </div>
                             {displayText && displayText !== "Thinking..." && (
                               <div className="flex items-center gap-2">
-                                <Loader className="w-4 h-4 text-gray-500 dark:text-gray-400 animate-spin flex-shrink-0" />
+                                <Loader className="w-4 h-4 text-gray-500 animate-spin flex-shrink-0" />
                                 <div
                                   key={displayText}
-                                  className="text-xs text-gray-500 dark:text-gray-400 animate-fade-in"
+                                  className="text-xs text-gray-500 animate-fade-in"
                                 >
                                   {displayText}
                                 </div>
@@ -267,14 +267,14 @@ export default function ChatDetailPage() {
                                     aria-label={
                                       isProcessExpanded ? "Collapse" : "Expand"
                                     }
-                                    className="flex items-center justify-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                    className="flex items-center justify-center p-1 rounded hover:bg-gray-200 transition-colors"
                                     type="button"
                                     onClick={() =>
                                       setIsProcessExpanded(!isProcessExpanded)
                                     }
                                   >
                                     <ChevronDown
-                                      className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-300 ease-in-out ${
+                                      className={`w-4 h-4 text-gray-500 transition-transform duration-300 ease-in-out ${
                                         isProcessExpanded ? "rotate-180" : ""
                                       }`}
                                     />
@@ -288,13 +288,13 @@ export default function ChatDetailPage() {
                     </div>
                     {processMessages.length > 0 && (
                       <div
-                        className={`bg-gray-50 dark:bg-gray-900 rounded-lg px-4 border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ease-in-out ${
+                        className={`bg-gray-50 rounded-lg px-4 border border-gray-200 overflow-hidden transition-all duration-300 ease-in-out ${
                           isProcessExpanded
                             ? "max-h-96 opacity-100 py-3"
                             : "max-h-0 opacity-0 py-0"
                         }`}
                       >
-                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                        <div className="text-xs font-medium text-gray-600 mb-2">
                           Process Log:
                         </div>
                         <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
@@ -304,15 +304,15 @@ export default function ChatDetailPage() {
                             return (
                               <div
                                 key={process.id}
-                                className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400"
+                                className="flex items-start gap-2 text-xs text-gray-600"
                               >
-                                <span className="text-gray-400 dark:text-gray-500 flex-shrink-0">
+                                <span className="text-gray-400 flex-shrink-0">
                                   {index + 1}.
                                 </span>
                                 <span className="flex-1">
                                   {process.message}
                                   {duration !== null && (
-                                    <span className="ml-2 text-gray-500 dark:text-gray-500">
+                                    <span className="ml-2 text-gray-500">
                                       ({formatDuration(duration)})
                                     </span>
                                   )}
@@ -331,10 +331,10 @@ export default function ChatDetailPage() {
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center max-w-2xl px-4">
-                <h2 className="text-2xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                <h2 className="text-2xl font-semibold text-gray-600 mb-2">
                   Chat not found
                 </h2>
-                <p className="text-gray-500 dark:text-gray-500">
+                <p className="text-gray-500">
                   The chat session you&apos;re looking for doesn&apos;t exist.
                 </p>
               </div>
@@ -344,7 +344,7 @@ export default function ChatDetailPage() {
 
         {/* Input Area - Only show if session exists */}
         {selectedSession && (
-          <div className=" dark:border-gray-800 p-4">
+          <div className="p-4">
             <div className="max-w-3xl mx-auto">
               <ChatInput
                 isConnected={isConnected}

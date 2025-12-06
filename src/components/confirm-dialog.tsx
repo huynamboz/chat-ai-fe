@@ -40,7 +40,7 @@ export function ConfirmDialog({
       isDismissable
       hideCloseButton
       classNames={{
-        base: "bg-white dark:bg-gray-900",
+        base: "bg-white",
         backdrop: "bg-black/50 backdrop-blur-sm",
       }}
     >
@@ -51,7 +51,7 @@ export function ConfirmDialog({
               {title}
             </ModalHeader>
             <ModalBody>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 {message}
               </p>
             </ModalBody>

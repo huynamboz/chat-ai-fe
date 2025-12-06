@@ -185,12 +185,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
     <div className="flex flex-col h-full w-64 bg-white p-4">
       {/* Logo + Title */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-9 w-9 rounded-full bg-[#1d844b] text-white flex items-center justify-center text-sm font-semibold">
-          {user?.username?.charAt(0).toUpperCase() ||
-            user?.email?.charAt(0).toUpperCase() ||
-            "O"}
-        </div>
-        <span className="text-lg font-semibold text-slate-900">Chat</span>
+        <span className="text-lg font-semibold text-slate-900">Spoke Intelligence</span>
       </div>
 
       {/* New Chat button */}

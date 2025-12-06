@@ -43,7 +43,6 @@ export default {
       },
     },
   },
-  darkMode: "class",
   plugins: [
     heroui({
       themes: {
@@ -61,23 +60,6 @@ export default {
               700: "#157f45",
               800: "#0e552e",
               900: "#072a17",
-            },
-          },
-        },
-        dark: {
-          colors: {
-            primary: {
-              DEFAULT: "#23d375",
-              50: "#072a17",
-              100: "#0e552e",
-              200: "#157f45",
-              300: "#1ca95d",
-              400: "#23d375",
-              500: "#47d787",
-              600: "#75e1a5",
-              700: "#a3ebc3",
-              800: "#d1f5e1",
-              900: "#e8faf0",
             },
           },
         },

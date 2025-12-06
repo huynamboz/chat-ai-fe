@@ -120,14 +120,12 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full bg-white dark:bg-gray-950">
+      <div className="flex h-screen w-full bg-white">
         <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 dark:border-gray-100 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Loading profile...
-            </p>
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent" />
+            <p className="mt-4 text-gray-600">Loading profile...</p>
           </div>
         </div>
       </div>
@@ -135,59 +133,58 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen w-full bg-gray-50">
       <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
       <div className="flex-1 flex flex-col overflow-y-auto">
         <div className="flex-1 p-6 md:p-8 lg:p-12">
           <div className="max-w-3xl mx-auto">
             {/* Header Section */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Profile Settings
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Manage your account information and security
               </p>
             </div>
 
             <div className="space-y-6">
               {/* Profile Information Card */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm p-6">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                    <span className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
+                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-2xl font-semibold text-gray-700">
                       {user?.username?.charAt(0).toUpperCase() ||
                         user?.email?.charAt(0).toUpperCase() ||
                         "U"}
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    <h2 className="text-xl font-semibold text-gray-900">
                       {user?.username || "User"}
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500">
                       Account Information
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                <div className="space-y-4 pt-4 border-t border-gray-200">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email Address
                     </label>
                     <Input
                       isReadOnly
                       classNames={{
                         base: "w-full",
-                        inputWrapper:
-                          "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700",
-                        input: "text-gray-900 dark:text-gray-100",
+                        inputWrapper: "bg-gray-50 border-gray-200",
+                        input: "text-gray-900",
                       }}
                       value={user?.email || ""}
                       variant="bordered"
                     />
-                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="mt-2 text-xs text-gray-500">
                       Your email address cannot be changed
                     </p>
                   </div>
@@ -195,26 +192,26 @@ export default function ProfilePage() {
               </div>
 
               {/* Change Password Card */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm p-6">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-1">
                     Change Password
                   </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500">
                     Update your password to keep your account secure
                   </p>
                 </div>
 
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Current Password
                     </label>
                     <Input
                       classNames={{
                         base: "w-full",
                         inputWrapper:
-                          "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
+                          "bg-white border-gray-200 hover:border-gray-300",
                       }}
                       placeholder="Enter your current password"
                       type="password"
@@ -225,14 +222,14 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       New Password
                     </label>
                     <Input
                       classNames={{
                         base: "w-full",
                         inputWrapper:
-                          "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
+                          "bg-white border-gray-200 hover:border-gray-300",
                       }}
                       placeholder="Enter your new password"
                       type="password"
@@ -240,20 +237,20 @@ export default function ProfilePage() {
                       variant="bordered"
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
-                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="mt-2 text-xs text-gray-500">
                       Must be at least 6 characters long
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Confirm New Password
                     </label>
                     <Input
                       classNames={{
                         base: "w-full",
                         inputWrapper:
-                          "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
+                          "bg-white border-gray-200 hover:border-gray-300",
                       }}
                       placeholder="Confirm your new password"
                       type="password"
@@ -265,7 +262,7 @@ export default function ProfilePage() {
 
                   <div className="pt-2">
                     <Button
-                      className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium min-w-32"
+                      className="bg-gray-900 text-white font-medium min-w-32"
                       isDisabled={
                         isChangingPassword ||
                         !oldPassword ||
