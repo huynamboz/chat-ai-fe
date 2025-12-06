@@ -4,57 +4,34 @@ import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { GalleryVerticalEnd } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import { useAuth } from "@/contexts/auth.context";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const validateForm = (): boolean => {
-    let isValid = true;
-
-    setEmailError(null);
-    setPasswordError(null);
-
-    if (!email.trim()) {
-      setEmailError("Email is required");
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Please enter a valid email address");
-      isValid = false;
-    }
-
-    if (!password) {
-      setPasswordError("Password is required");
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
-      isValid = false;
-    }
-
-    return isValid;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: { email: string; password: string }) => {
     setError(null);
-
-    if (!validateForm()) {
-      return;
-    }
-
     setIsLoading(true);
 
     try {
       await login({
-        email: email.trim(),
-        password,
+        email: data.email.trim(),
+        password: data.password,
       });
       // Redirect is handled by auth context
     } catch (err) {
@@ -79,7 +56,10 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Login to your account</h1>
                 <p className="text-balance text-sm text-muted-foreground">
@@ -92,14 +72,19 @@ export default function LoginPage() {
                     Email
                   </label>
                   <Input
-                    errorMessage={emailError || undefined}
+                    errorMessage={errors.email?.message}
                     id="email"
                     isDisabled={isLoading}
-                    isInvalid={!!emailError}
+                    isInvalid={!!errors.email}
                     placeholder="m@example.com"
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -115,13 +100,18 @@ export default function LoginPage() {
                     </a>
                   </div>
                   <Input
-                    errorMessage={passwordError || undefined}
+                    errorMessage={errors.password?.message}
                     id="password"
                     isDisabled={isLoading}
-                    isInvalid={!!passwordError}
+                    isInvalid={!!errors.password}
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
                   />
                 </div>
                 {error && (

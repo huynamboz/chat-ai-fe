@@ -5,59 +5,46 @@ import { Link } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { GalleryVerticalEnd } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import { useAuth } from "@/contexts/auth.context";
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState<
-    string | null
-  >(null);
+  const {
+    getValues,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const validateForm = (): boolean => {
-    let isValid = true;
-
-    setEmailError(null);
-    setPasswordError(null);
-    setConfirmPasswordError(null);
-
-    if (!email.trim()) {
-      setEmailError("Email is required");
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Please enter a valid email address");
-      isValid = false;
-    }
-
-    return isValid;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
     setError(null);
-
-    if (!validateForm()) {
-      return;
-    }
 
     setIsLoading(true);
 
     try {
-      const trimmedEmail = email.trim();
+      const trimmedEmail = data.email.trim();
       const derivedUsername =
         trimmedEmail.split("@")[0]?.trim() || trimmedEmail;
 
       await signUp({
         username: derivedUsername,
         email: trimmedEmail,
-        password,
+        password: data.password,
       });
       // Redirect is handled by auth context
     } catch (err) {
@@ -83,7 +70,10 @@ export default function RegisterPage() {
 
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create an account</h1>
                 <p className="text-balance text-sm text-muted-foreground">
@@ -101,55 +91,62 @@ export default function RegisterPage() {
                 <Input
                   autoComplete="email"
                   classNames={{
-                    inputWrapper:
-                      "bg-white border-gray-300",
+                    inputWrapper: "bg-white border-gray-300",
                     input: "text-gray-900",
                   }}
-                  errorMessage={emailError || undefined}
+                  errorMessage={errors.email?.message}
                   isDisabled={isLoading}
-                  isInvalid={!!emailError}
+                  isInvalid={!!errors.email}
                   label="Email"
                   placeholder="Enter your email"
                   type="email"
-                  value={email}
                   variant="bordered"
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Please enter a valid email address",
+                    },
+                  })}
                 />
 
                 <Input
                   autoComplete="new-password"
                   classNames={{
-                    inputWrapper:
-                      "bg-white border-gray-300",
+                    inputWrapper: "bg-white border-gray-300",
                     input: "text-gray-900",
                   }}
-                  errorMessage={passwordError || undefined}
+                  errorMessage={errors.password?.message}
                   isDisabled={isLoading}
-                  isInvalid={!!passwordError}
+                  isInvalid={!!errors.password}
                   label="Password"
                   placeholder="Enter your password"
                   type="password"
-                  value={password}
                   variant="bordered"
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
                 />
 
                 <Input
                   autoComplete="new-password"
                   classNames={{
-                    inputWrapper:
-                      "bg-white border-gray-300",
+                    inputWrapper: "bg-white border-gray-300",
                     input: "text-gray-900",
                   }}
-                  errorMessage={confirmPasswordError || undefined}
+                  errorMessage={errors.confirmPassword?.message}
                   isDisabled={isLoading}
-                  isInvalid={!!confirmPasswordError}
+                  isInvalid={!!errors.confirmPassword}
                   label="Confirm Password"
                   placeholder="Confirm your password"
                   type="password"
-                  value={confirmPassword}
                   variant="bordered"
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  {...register("confirmPassword", {
+                    required: "Confirm password is required",
+                    validate: (value: string) =>
+                      value === getValues("password") ||
+                      "Passwords do not match",
+                  })}
                 />
 
                 <Button
