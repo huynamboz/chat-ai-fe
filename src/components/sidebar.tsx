@@ -1,25 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from "@heroui/dropdown";
 import { addToast } from "@heroui/toast";
 
-import {
-  PlusIcon,
-  SearchIcon,
-  MenuIcon,
-  SettingsIcon,
-  UserIcon,
-  LogoutIcon,
-  DeleteIcon,
-  EditIcon,
-} from "@/components/icons";
+import { PlusIcon, DeleteIcon, EditIcon, LogoutIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/contexts/auth.context";
 import { useChatStore } from "@/stores/chat.store";
@@ -53,6 +37,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Filter out deleted sessions
   const activeSessions = chatSessions.filter((session) => !session.isDeleted);
@@ -197,177 +182,212 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-64 bg-gray-900 text-white">
-      {/* Header with Menu and New Chat */}
-      <div className="p-3 border-b border-gray-800">
-        <div className="flex items-center gap-2 mb-3">
-          <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-            <MenuIcon className="w-5 h-5" />
-          </button>
-          <Button
-            className="flex-1 bg-transparent border border-gray-700 hover:bg-gray-800 text-white justify-start"
-            startContent={<PlusIcon className="w-4 h-4" />}
-            onPress={handleNewChat}
+    <div className="flex flex-col h-full w-64 bg-white p-4">
+      {/* Logo + Title */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-9 w-9 rounded-full bg-[#1d844b] text-white flex items-center justify-center text-sm font-semibold">
+          {user?.username?.charAt(0).toUpperCase() ||
+            user?.email?.charAt(0).toUpperCase() ||
+            "O"}
+        </div>
+        <span className="text-lg font-semibold text-slate-900">Chat</span>
+      </div>
+
+      {/* New Chat button */}
+      <button
+        className="mb-6 w-full flex items-center justify-center gap-2 rounded-full bg-sky-700 text-white py-2.5 text-sm font-medium hover:bg-sky-700 transition"
+        onClick={handleNewChat}
+        type="button"
+      >
+        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
+          <PlusIcon className="w-3.5 h-3.5" />
+        </span>
+        <span>New Chat</span>
+      </button>
+
+      {/* Saved static section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Saved
+          </span>
+        </div>
+
+        {["ChatAI", "Image of sun", "Data Analyst"].map((item) => (
+          <div
+            key={item}
+            className="w-full flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-sm text-slate-800 hover:bg-slate-100 transition"
           >
-            New chat
-          </Button>
-        </div>
-
-        {/* Search Chat */}
-        <Input
-          aria-label="Search chat"
-          classNames={{
-            base: "w-full",
-            inputWrapper: "bg-gray-800 border-gray-700 hover:bg-gray-800",
-            input: "text-sm text-white placeholder:text-gray-500",
-          }}
-          placeholder="Search chat..."
-          size="sm"
-          startContent={
-            <SearchIcon className="text-gray-400 pointer-events-none flex-shrink-0 w-4 h-4" />
-          }
-          type="search"
-        />
-      </div>
-
-      {/* Chats List */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-2 py-2">
-          <div className="flex flex-col gap-1">
-            {activeSessions.length === 0 ? (
-              <div className="px-3 py-4 text-center text-sm text-gray-400">
-                No chats yet. Start a new conversation!
-              </div>
-            ) : (
-              activeSessions.map((session) => (
-                <div
-                  key={session._id}
-                  className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm ${
-                    selectedChatSessionId === session._id
-                      ? "bg-gray-800"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleChatSelect(session._id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleChatSelect(session._id);
-                    }
-                  }}
-                >
-                  {editingSessionId === session._id ? (
-                    <Input
-                      ref={editInputRef}
-                      aria-label="Edit chat name"
-                      classNames={{
-                        base: "flex-1",
-                        inputWrapper: "bg-gray-700 border-gray-600 h-8 min-h-8",
-                        input: "text-sm text-white",
-                      }}
-                      size="sm"
-                      value={editTitle}
-                      onBlur={handleSaveEdit}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      onKeyDown={handleEditKeyPress}
-                    />
-                  ) : (
-                    <>
-                      <button className="flex-1 text-left truncate">
-                        <div className="truncate">{session.title}</div>
-                      </button>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          aria-label="Edit chat name"
-                          className="p-1 hover:bg-gray-700 rounded"
-                          onClick={(e) => handleEditClick(e, session._id)}
-                        >
-                          <EditIcon className="w-4 h-4 text-gray-400 hover:text-blue-400" />
-                        </button>
-                        <button
-                          aria-label="Delete conversation"
-                          className="p-1 hover:bg-gray-700 rounded"
-                          onClick={(e) => handleDeleteClick(e, session._id)}
-                        >
-                          <DeleteIcon className="w-4 h-4 text-gray-400 hover:text-red-400" />
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))
-            )}
+            <div className="flex items-center gap-2">
+              <span className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[11px] text-slate-500">
+                {item[0]}
+              </span>
+              <span className="truncate">{item}</span>
+            </div>
+            <button
+              className="text-slate-400 hover:text-slate-600"
+              type="button"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                className="h-4 w-4"
+                fill="currentColor"
+              >
+                <circle cx="4" cy="10" r="1.2" />
+                <circle cx="10" cy="10" r="1.2" />
+                <circle cx="16" cy="10" r="1.2" />
+              </svg>
+            </button>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Footer with User Info and Settings */}
-      <div className="p-3 border-t border-gray-800 space-y-2">
-        {/* User Info */}
-        {user && (
-          <div className="px-3 py-2 rounded-lg bg-gray-800/50">
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-                <span className="text-xs font-medium text-gray-300">
-                  {user.username?.charAt(0).toUpperCase() ||
-                    user.email?.charAt(0).toUpperCase()}
+      {/* Dynamic chat sessions grouped by date */}
+      <div className="space-y-4 flex-1 overflow-hidden">
+        {(() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const yesterdayStart = new Date(today);
+          yesterdayStart.setDate(today.getDate() - 1);
+
+          const todaySessions = activeSessions.filter((session) => {
+            const created = new Date(session.createdAt);
+
+            return created >= today;
+          });
+
+          const yesterdaySessions = activeSessions.filter((session) => {
+            const created = new Date(session.createdAt);
+
+            return created >= yesterdayStart && created < today;
+          });
+
+          const earlierSessions = activeSessions.filter((session) => {
+            const created = new Date(session.createdAt);
+
+            return created < yesterdayStart;
+          });
+
+          const sections = [
+            { key: "today", label: "Today", sessions: todaySessions },
+            { key: "yesterday", label: "Yesterday", sessions: yesterdaySessions },
+            { key: "earlier", label: "Earlier", sessions: earlierSessions },
+          ].filter((section) => section.sessions.length > 0);
+
+          if (sections.length === 0) {
+            return (
+              <div className="text-xs text-slate-400">
+                No conversations yet. Start a new chat to see it here.
+              </div>
+            );
+          }
+
+          return sections.map((section) => (
+            <div key={section.key}>
+              <div className="flex items-center justify-between w-full text-xs text-slate-500 mb-1.5">
+                <span className="font-medium">
+                  {section.key === "earlier" ? "Earlier" : section.label}
                 </span>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-200 truncate">
-                  {user.username || "User"}
-                </div>
-                <div className="text-xs text-gray-400 truncate">
-                  {user.email}
-                </div>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                {section.sessions.map((session) => (
+                  <div
+                    key={session._id}
+                    className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-sm cursor-pointer ${
+                      selectedChatSessionId === session._id
+                        ? "bg-gray-100"
+                        : "hover:bg-slate-100 text-slate-800"
+                    }`}
+                    onClick={() => handleChatSelect(session._id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleChatSelect(session._id);
+                      }
+                    }}
+                  >
+                    {editingSessionId === session._id ? (
+                      <Input
+                        ref={editInputRef}
+                        aria-label="Edit chat name"
+                        classNames={{
+                          base: "flex-1",
+                          inputWrapper:
+                            "bg-slate-100 border-slate-200 h-8 min-h-8",
+                          input: "text-sm text-slate-900",
+                        }}
+                        size="sm"
+                        value={editTitle}
+                        onBlur={handleSaveEdit}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onKeyDown={handleEditKeyPress}
+                      />
+                    ) : (
+                      <>
+                        <button
+                          className="flex-1 text-left truncate"
+                          type="button"
+                        >
+                          <div className="truncate">{session.title}</div>
+                        </button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            aria-label="Edit chat name"
+                            className="p-1 hover:bg-slate-200 rounded"
+                            type="button"
+                            onClick={(e) => handleEditClick(e, session._id)}
+                          >
+                            <EditIcon className="w-4 h-4 text-slate-400 hover:text-slate-700" />
+                          </button>
+                          <button
+                            aria-label="Delete conversation"
+                            className="p-1 hover:bg-slate-200 rounded"
+                            type="button"
+                            onClick={(e) => handleDeleteClick(e, session._id)}
+                          >
+                            <DeleteIcon className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Settings Dropdown */}
-        <Dropdown
-          classNames={{
-            content: "bg-gray-800 border border-gray-700",
-          }}
-          placement="top-start"
-        >
-          <DropdownTrigger>
-            <button className="w-full flex items-center justify-start gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-              <SettingsIcon className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-300">Settings</span>
-            </button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Settings menu"
-            itemClasses={{
-              base: "text-gray-200 data-[hover=true]:bg-gray-700",
-            }}
-            onAction={(key) => {
-              if (key === "profile") {
-                navigate("/profile");
-              } else if (key === "logout") {
-                logout();
-              }
-            }}
-          >
-            <DropdownItem
-              key="profile"
-              className="text-gray-200"
-              startContent={<UserIcon className="w-4 h-4" />}
-            >
-              Profile
-            </DropdownItem>
-            <DropdownItem
-              key="logout"
-              className="text-red-400 data-[hover=true]:bg-red-900/20"
-              startContent={<LogoutIcon className="w-4 h-4" />}
-            >
-              Logout
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+          ));
+        })()}
       </div>
+
+      {/* Footer: user info + logout */}
+      {user && (
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold shrink-0">
+              {user.username?.charAt(0).toUpperCase() ||
+                user.email?.charAt(0).toUpperCase() ||
+                "S"}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-medium text-slate-900 truncate">
+                {user.username || "User"}
+              </span>
+              <span className="text-[11px] text-slate-500 truncate">
+                {user.email}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Log out"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 transition"
+            onClick={() => setLogoutDialogOpen(true)}
+          >
+            <LogoutIcon className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
@@ -382,6 +402,22 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
           setSessionToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        cancelText="Cancel"
+        confirmColor="danger"
+        confirmText="Log out"
+        isOpen={logoutDialogOpen}
+        message="Are you sure you want to log out of your account?"
+        title="Log out"
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={() => {
+          setLogoutDialogOpen(false);
+          logout();
+          navigate("/login");
+        }}
       />
     </div>
   );

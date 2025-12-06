@@ -1,0 +1,6 @@
+
+.custom-textarea div {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
