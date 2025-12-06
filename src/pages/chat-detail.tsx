@@ -3,7 +3,7 @@ import type { ReceiveAnswerResponse } from "@/types/api.types";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, Loader } from "lucide-react";
-
+import {ScrollShadow} from "@heroui/scroll-shadow";
 import { Sidebar } from "@/components/sidebar";
 import { ChatInput } from "@/components/chat-input";
 import { ChatMessageItem } from "@/components/chat-message-item";
@@ -206,14 +206,16 @@ export default function ChatDetailPage() {
       <Sidebar onChatSelect={handleChatSelect} onNewChat={handleNewChat} />
       <div className="bg-slate-50/50 border border-slate-200 shadow-sm px-8 pt-5 flex flex-1 flex-col">
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
           {selectedSession ? (
-            <div className="flex-1 p-4">
+            <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
               <div className="max-w-3xl mx-auto space-y-4">
                 {messages.length === 0 ? (
-                  <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                    No messages yet. Start the conversation!
-                  </div>
+                  <ScrollShadow className="flex-1 flex flex-col overflow-y-auto" hideScrollBar>
+                    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                      No messages yet. Start the conversation!
+                    </div>
+                  </ScrollShadow>
                 ) : (
                   messages.map((message) => {
                     const thinkingTime =
@@ -325,7 +327,7 @@ export default function ChatDetailPage() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
-            </div>
+            </ScrollShadow>
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center max-w-2xl px-4">
@@ -338,7 +340,7 @@ export default function ChatDetailPage() {
               </div>
             </div>
           )}
-        </div>
+        </ScrollShadow>
 
         {/* Input Area - Only show if session exists */}
         {selectedSession && (

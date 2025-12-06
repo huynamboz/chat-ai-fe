@@ -206,7 +206,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
       </button>
 
       {/* Saved static section */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Saved
@@ -240,7 +240,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
             </button>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Dynamic chat sessions grouped by date */}
       <div className="space-y-4 flex-1 overflow-hidden">

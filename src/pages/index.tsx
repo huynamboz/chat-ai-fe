@@ -83,13 +83,13 @@ export default function IndexPage() {
 
   // Promotion questions for new chat hero section
   const promoQuestions = [
-    "What are the main complications associated with uncontrolled type 2 diabetes?",
-    "Which drugs are commonly used as first-line therapy for hypertension?",
-    "How does aspirin interact with anticoagulant medications?",
+    "Which drugs are commonly used to treat lung cancer?",
+    "What are the common symptoms of diarrhea?",
+    "What are the typical symptoms of influenza (the flu)?",
   ];
 
   const suggestedPrompt =
-    "What are the key differences between ibuprofen and acetaminophen for treating chronic pain?";
+    "Which medications are usually prescribed to treat the common cold?";
 
   const promoCards = [
     { question: promoQuestions[0], icon: "🧬" },

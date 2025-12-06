@@ -1,11 +1,11 @@
+import type { ApiError } from "@/types/api.types";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
+import { GalleryVerticalEnd } from "lucide-react";
 
 import { useAuth } from "@/contexts/auth.context";
-import { HealthIcon } from "@/components/icons";
-import type { ApiError } from "@/types/api.types";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -18,6 +18,7 @@ export default function LoginPage() {
 
   const validateForm = (): boolean => {
     let isValid = true;
+
     setEmailError(null);
     setPasswordError(null);
 
@@ -58,6 +59,7 @@ export default function LoginPage() {
       // Redirect is handled by auth context
     } catch (err) {
       const apiError = err as ApiError;
+
       setError(apiError.error || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -65,101 +67,87 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
-      <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="p-4 bg-primary rounded-2xl shadow-lg">
-              <HealthIcon className="w-12 h-12 text-white" />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <div className="flex items-center gap-2 font-medium">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
             </div>
+            Acme Inc.
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Health AI Assistant
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Health knowledge consultation support
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-            Sign in to continue
-          </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            </div>
-          )}
-
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-5 border border-gray-100 dark:border-gray-800">
-            <Input
-              label="Email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              isInvalid={!!emailError}
-              errorMessage={emailError}
-              classNames={{
-                base: "w-full",
-                inputWrapper:
-                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors",
-                input: "text-gray-900 dark:text-white",
-                label: "text-gray-700 dark:text-gray-300",
-              }}
-              variant="bordered"
-              isDisabled={isLoading}
-              autoComplete="email"
-              size="lg"
-            />
-
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              isInvalid={!!passwordError}
-              errorMessage={passwordError}
-              classNames={{
-                base: "w-full",
-                inputWrapper:
-                  "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors",
-                input: "text-gray-900 dark:text-white",
-                label: "text-gray-700 dark:text-gray-300",
-              }}
-              variant="bordered"
-              isDisabled={isLoading}
-              autoComplete="current-password"
-              size="lg"
-            />
-
-            <Button
-              type="submit"
-              className="w-full bg-primary text-white font-semibold shadow-lg hover:bg-primary-600 hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
-              isLoading={isLoading}
-              isDisabled={isLoading}
-              size="lg"
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <h1 className="text-2xl font-bold">Login to your account</h1>
+                <p className="text-balance text-sm text-muted-foreground">
+                  Enter your email below to login to your account
+                </p>
+              </div>
+              <div className="grid gap-6">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium" htmlFor="email">
+                    Email
+                  </label>
+                  <Input
+                    errorMessage={emailError || undefined}
+                    id="email"
+                    isDisabled={isLoading}
+                    isInvalid={!!emailError}
+                    placeholder="m@example.com"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <label className="text-sm font-medium" htmlFor="password">
+                      Password
+                    </label>
+                    <a
+                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                      href="/forgot-password"
+                    >
+                      Forgot your password?
+                    </a>
+                  </div>
+                  <Input
+                    errorMessage={passwordError || undefined}
+                    id="password"
+                    isDisabled={isLoading}
+                    isInvalid={!!passwordError}
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                {error && (
+                  <p className="text-xs text-red-500 text-center">{error}</p>
+                )}
+                <Button className="w-full" isLoading={isLoading} type="submit">
+                  Login
+                </Button>
+              </div>
+              <div className="text-center text-sm">
+                Don&apos;t have an account?{" "}
+                <a className="underline underline-offset-4" href="/register">
+                  Sign up
+                </a>
+              </div>
+            </form>
           </div>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Don&apos;t have an account?{" "}
-            <Link
-              className="text-primary font-semibold hover:text-primary-600 transition-colors"
-              to="/register"
-            >
-              Sign up now
-            </Link>
-          </p>
         </div>
+      </div>
+      <div className="relative hidden bg-muted lg:block">
+        <img
+          alt="Login illustration"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          src="/bg.jpg"
+        />
       </div>
     </div>
   );
 }
-

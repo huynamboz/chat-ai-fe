@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
+import { GalleryVerticalEnd } from "lucide-react";
 
 import { useAuth } from "@/contexts/auth.context";
 
@@ -92,118 +93,133 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-950 px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">
-            Create an account
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Sign up to get started
-          </p>
-        </div>
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <div className="flex items-center gap-2 font-medium">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
             </div>
-          )}
-
-          <Input
-            autoComplete="username"
-            classNames={{
-              inputWrapper:
-                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            errorMessage={usernameError}
-            isDisabled={isLoading}
-            isInvalid={!!usernameError}
-            label="Username"
-            placeholder="Enter your username"
-            type="text"
-            value={username}
-            variant="bordered"
-            onChange={(e) => setUsername(e.target.value)}
-          />
-
-          <Input
-            autoComplete="email"
-            classNames={{
-              inputWrapper:
-                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            errorMessage={emailError}
-            isDisabled={isLoading}
-            isInvalid={!!emailError}
-            label="Email"
-            placeholder="Enter your email"
-            type="email"
-            value={email}
-            variant="bordered"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <Input
-            autoComplete="new-password"
-            classNames={{
-              inputWrapper:
-                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            errorMessage={passwordError}
-            isDisabled={isLoading}
-            isInvalid={!!passwordError}
-            label="Password"
-            placeholder="Enter your password"
-            type="password"
-            value={password}
-            variant="bordered"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <Input
-            autoComplete="new-password"
-            classNames={{
-              inputWrapper:
-                "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
-              input: "text-gray-900 dark:text-white",
-            }}
-            errorMessage={confirmPasswordError}
-            isDisabled={isLoading}
-            isInvalid={!!confirmPasswordError}
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            type="password"
-            value={confirmPassword}
-            variant="bordered"
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-
-          <Button
-            className="w-full bg-primary text-white font-medium hover:bg-primary-600"
-            isDisabled={isLoading}
-            isLoading={isLoading}
-            size="lg"
-            type="submit"
-          >
-            {isLoading ? "Creating account..." : "Sign up"}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{" "}
-            <Link
-              className="text-gray-900 dark:text-white font-medium hover:underline"
-              to="/login"
-            >
-              Sign in
-            </Link>
-          </p>
+            Acme Inc.
+          </div>
         </div>
+
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <h1 className="text-2xl font-bold">Create an account</h1>
+                <p className="text-balance text-sm text-muted-foreground">
+                  Enter your details below to sign up
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                {error && (
+                  <div className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-600">
+                    {error}
+                  </div>
+                )}
+
+                <Input
+                  autoComplete="username"
+                  classNames={{
+                    inputWrapper:
+                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+                    input: "text-gray-900 dark:text-white",
+                  }}
+                  errorMessage={usernameError || undefined}
+                  isDisabled={isLoading}
+                  isInvalid={!!usernameError}
+                  label="Username"
+                  placeholder="Enter your username"
+                  type="text"
+                  value={username}
+                  variant="bordered"
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+
+                <Input
+                  autoComplete="email"
+                  classNames={{
+                    inputWrapper:
+                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+                    input: "text-gray-900 dark:text-white",
+                  }}
+                  errorMessage={emailError || undefined}
+                  isDisabled={isLoading}
+                  isInvalid={!!emailError}
+                  label="Email"
+                  placeholder="Enter your email"
+                  type="email"
+                  value={email}
+                  variant="bordered"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+
+                <Input
+                  autoComplete="new-password"
+                  classNames={{
+                    inputWrapper:
+                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+                    input: "text-gray-900 dark:text-white",
+                  }}
+                  errorMessage={passwordError || undefined}
+                  isDisabled={isLoading}
+                  isInvalid={!!passwordError}
+                  label="Password"
+                  placeholder="Enter your password"
+                  type="password"
+                  value={password}
+                  variant="bordered"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <Input
+                  autoComplete="new-password"
+                  classNames={{
+                    inputWrapper:
+                      "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700",
+                    input: "text-gray-900 dark:text-white",
+                  }}
+                  errorMessage={confirmPasswordError || undefined}
+                  isDisabled={isLoading}
+                  isInvalid={!!confirmPasswordError}
+                  label="Confirm Password"
+                  placeholder="Confirm your password"
+                  type="password"
+                  value={confirmPassword}
+                  variant="bordered"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <Button
+                  className="w-full"
+                  isDisabled={isLoading}
+                  isLoading={isLoading}
+                  type="submit"
+                >
+                  {isLoading ? "Creating account..." : "Sign up"}
+                </Button>
+              </div>
+
+              <div className="text-center text-sm">
+                Already have an account?{" "}
+                <Link className="underline underline-offset-4" to="/login">
+                  Sign in
+                </Link>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative hidden bg-muted lg:block">
+        <img
+          alt="Register illustration"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          src="/bg.jpg"
+        />
       </div>
     </div>
   );

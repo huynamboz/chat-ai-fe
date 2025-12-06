@@ -36,11 +36,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <Textarea
             className="flex-1 custom-textarea !bg-transparent border-0 outline-none resize-none text-sm text-slate-800 placeholder:text-slate-400 min-h-[40px] max-h-28"
             disabled={!isConnected || isLoading}
-            maxRows={3}
+            maxRows={5}
             minRows={1}
-            placeholder="What are the best open opportunities by company size?"
+            placeholder="Enter your question here..."
             value={message}
-            onKeyDown={handleKeyDown}
             onValueChange={onMessageChange}
           />
         </div>
@@ -62,16 +61,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
       <p className="mt-3 text-[11px] text-slate-400 text-center">
         Centra may display inaccurate info, so please double check the response.{" "}
-        <a className="underline" href="#">
-          Your Privacy
-        </a>{" "}
-        &amp;{" "}
-        <a className="underline" href="#">
-          Orbita GPT
-        </a>
       </p>
     </>
   );
 };
-
-
