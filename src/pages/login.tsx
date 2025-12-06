@@ -92,12 +92,6 @@ export default function LoginPage() {
                     <label className="text-sm font-medium" htmlFor="password">
                       Password
                     </label>
-                    <a
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                      href="/forgot-password"
-                    >
-                      Forgot your password?
-                    </a>
                   </div>
                   <Input
                     errorMessage={errors.password?.message}
@@ -107,10 +101,6 @@ export default function LoginPage() {
                     type="password"
                     {...register("password", {
                       required: "Password is required",
-                      minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters",
-                      },
                     })}
                   />
                 </div>
