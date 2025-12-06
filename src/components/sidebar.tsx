@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -18,6 +18,7 @@ import {
   UserIcon,
   LogoutIcon,
   DeleteIcon,
+  EditIcon,
 } from "@/components/icons";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuth } from "@/contexts/auth.context";
@@ -40,6 +41,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
     selectedChatSessionId,
     selectChatSession,
     deleteChatSession,
+    updateChatSession,
   } = useChatStore();
 
   // Load conversations from API
@@ -48,6 +50,9 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
   // Dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Filter out deleted sessions
   const activeSessions = chatSessions.filter((session) => !session.isDeleted);
@@ -113,6 +118,84 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
     }
   };
 
+  // Handle edit button click
+  const handleEditClick = (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation(); // Prevent chat selection
+    const session = chatSessions.find((s) => s._id === sessionId);
+
+    if (session) {
+      setEditingSessionId(sessionId);
+      setEditTitle(session.title);
+    }
+  };
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (editingSessionId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingSessionId]);
+
+  // Handle save edit
+  const handleSaveEdit = async () => {
+    if (!editingSessionId || !editTitle.trim()) {
+      setEditingSessionId(null);
+      setEditTitle("");
+
+      return;
+    }
+
+    try {
+      // Call API to update name
+      const response = await chatSessionService.updateName(editingSessionId, {
+        newTitle: editTitle.trim(),
+      });
+
+      // Update store
+      updateChatSession(editingSessionId, {
+        title: response.chatSession.title,
+      });
+
+      // Show success toast
+      addToast({
+        title: "Updated successfully",
+        description: "Chat name has been updated.",
+        color: "success",
+        severity: "success",
+      });
+
+      setEditingSessionId(null);
+      setEditTitle("");
+    } catch (error) {
+      // Show error toast
+      addToast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to update chat name. Please try again.",
+        color: "danger",
+        severity: "danger",
+      });
+    }
+  };
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingSessionId(null);
+    setEditTitle("");
+  };
+
+  // Handle input key press
+  const handleEditKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSaveEdit();
+    } else if (e.key === "Escape") {
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-64 bg-gray-900 text-white">
       {/* Header with Menu and New Chat */}
@@ -164,20 +247,53 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
                       ? "bg-gray-800"
                       : "hover:bg-gray-800/50"
                   }`}
+                  onClick={() => handleChatSelect(session._id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleChatSelect(session._id);
+                    }
+                  }}
                 >
-                  <button
-                    className="flex-1 text-left truncate"
-                    onClick={() => handleChatSelect(session._id)}
-                  >
-                    <div className="truncate">{session.title}</div>
-                  </button>
-                  <button
-                    aria-label="Delete conversation"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-700 rounded"
-                    onClick={(e) => handleDeleteClick(e, session._id)}
-                  >
-                    <DeleteIcon className="w-4 h-4 text-gray-400 hover:text-red-400" />
-                  </button>
+                  {editingSessionId === session._id ? (
+                    <Input
+                      ref={editInputRef}
+                      aria-label="Edit chat name"
+                      classNames={{
+                        base: "flex-1",
+                        inputWrapper: "bg-gray-700 border-gray-600 h-8 min-h-8",
+                        input: "text-sm text-white",
+                      }}
+                      size="sm"
+                      value={editTitle}
+                      onBlur={handleSaveEdit}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={handleEditKeyPress}
+                    />
+                  ) : (
+                    <>
+                      <button className="flex-1 text-left truncate">
+                        <div className="truncate">{session.title}</div>
+                      </button>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          aria-label="Edit chat name"
+                          className="p-1 hover:bg-gray-700 rounded"
+                          onClick={(e) => handleEditClick(e, session._id)}
+                        >
+                          <EditIcon className="w-4 h-4 text-gray-400 hover:text-blue-400" />
+                        </button>
+                        <button
+                          aria-label="Delete conversation"
+                          className="p-1 hover:bg-gray-700 rounded"
+                          onClick={(e) => handleDeleteClick(e, session._id)}
+                        >
+                          <DeleteIcon className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))
             )}
@@ -229,8 +345,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
             }}
             onAction={(key) => {
               if (key === "profile") {
-                // Navigate to profile page (you can create this later)
-                // TODO: Navigate to profile page
+                navigate("/profile");
               } else if (key === "logout") {
                 logout();
               }

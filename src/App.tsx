@@ -4,6 +4,7 @@ import IndexPage from "@/pages/index";
 import ChatDetailPage from "@/pages/chat-detail";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
+import ProfilePage from "@/pages/profile";
 import { ProtectedRoute } from "@/components/protected-route";
 import { PublicRoute } from "@/components/public-route";
 
@@ -41,6 +42,14 @@ function App() {
           </PublicRoute>
         }
         path="/register"
+      />
+      <Route
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+        path="/profile"
       />
     </Routes>
   );
