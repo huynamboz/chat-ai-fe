@@ -388,11 +388,16 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
       {user && (
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold shrink-0">
+            <button
+              type="button"
+              aria-label="Profile"
+              className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold shrink-0 hover:opacity-90 transition"
+              onClick={() => navigate("/profile")}
+            >
               {user.username?.charAt(0).toUpperCase() ||
                 user.email?.charAt(0).toUpperCase() ||
                 "S"}
-            </div>
+            </button>
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-medium text-slate-900 truncate">
                 {user.username || "User"}
