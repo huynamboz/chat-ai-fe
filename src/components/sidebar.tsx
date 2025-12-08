@@ -282,7 +282,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
               <div className="flex items-center justify-between w-full text-xs text-slate-500 mb-1.5">
                 <span className="font-medium">Today</span>
               </div>
-              <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+              <div className="space-y-1.5 overflow-y-auto pr-1">
                 {filteredSessions.map((session) => (
                   <div
                     key={session._id}
