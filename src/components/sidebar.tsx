@@ -186,15 +186,19 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
     <div className="flex flex-col h-full w-64 bg-white p-4">
       {/* Logo + Title */}
       <div className="flex items-center gap-1 mb-4">
-        <img src="https://devmock.dev/assets/images/logo.png" alt="" className="w-6 h-6" />
+        <img
+          alt=""
+          className="w-6 h-6"
+          src="https://devmock.dev/assets/images/logo.png"
+        />
         <span className="text-lg font-semibold text-slate-900">AKE</span>
       </div>
 
       {/* New Chat button */}
       <button
         className="mb-6 w-full bg-gray-100 flex justify-center items-center px-5 cursor-pointer gap-2 hover:bg-gray-200 rounded-full py-2.5 text-sm font-medium transition"
-        onClick={handleNewChat}
         type="button"
+        onClick={handleNewChat}
       >
         <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
           <PlusIcon className="w-3.5 h-3.5" />
@@ -254,52 +258,18 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
         ))}
       </div> */}
 
-      {/* Dynamic chat sessions grouped by date */}
+      {/* Dynamic chat sessions */}
       <div className="space-y-4 flex-1 overflow-hidden">
         {(() => {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          const yesterdayStart = new Date(today);
-          yesterdayStart.setDate(today.getDate() - 1);
-
           const normalizedSearch = searchTerm.trim().toLowerCase();
 
-          const matchesSearch = (session: (typeof activeSessions)[number]) => {
+          const filteredSessions = activeSessions.filter((session) => {
             if (!normalizedSearch) return true;
 
             return session.title.toLowerCase().includes(normalizedSearch);
-          };
-
-          const todaySessions = activeSessions.filter((session) => {
-            const created = new Date(session.createdAt);
-
-            return created >= today && matchesSearch(session);
           });
 
-          const yesterdaySessions = activeSessions.filter((session) => {
-            const created = new Date(session.createdAt);
-
-            return (
-              created >= yesterdayStart &&
-              created < today &&
-              matchesSearch(session)
-            );
-          });
-
-          const earlierSessions = activeSessions.filter((session) => {
-            const created = new Date(session.createdAt);
-
-            return created < yesterdayStart && matchesSearch(session);
-          });
-
-          const sections = [
-            { key: "today", label: "Today", sessions: todaySessions },
-            { key: "yesterday", label: "Yesterday", sessions: yesterdaySessions },
-            { key: "earlier", label: "Earlier", sessions: earlierSessions },
-          ].filter((section) => section.sessions.length > 0);
-
-          if (sections.length === 0) {
+          if (filteredSessions.length === 0) {
             return (
               <div className="text-xs text-slate-400">
                 No conversations yet. Start a new chat to see it here.
@@ -307,15 +277,13 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
             );
           }
 
-          return sections.map((section) => (
-            <div key={section.key}>
+          return (
+            <div>
               <div className="flex items-center justify-between w-full text-xs text-slate-500 mb-1.5">
-                <span className="font-medium">
-                  {section.key === "earlier" ? "Earlier" : section.label}
-                </span>
+                <span className="font-medium">Today</span>
               </div>
               <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                {section.sessions.map((session) => (
+                {filteredSessions.map((session) => (
                   <div
                     key={session._id}
                     className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-sm cursor-pointer ${
@@ -323,9 +291,9 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
                         ? "bg-gray-100"
                         : "hover:bg-slate-100 text-slate-800"
                     }`}
-                    onClick={() => handleChatSelect(session._id)}
                     role="button"
                     tabIndex={0}
+                    onClick={() => handleChatSelect(session._id)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleChatSelect(session._id);
@@ -380,7 +348,7 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
                 ))}
               </div>
             </div>
-          ));
+          );
         })()}
       </div>
 
@@ -389,9 +357,9 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <button
-              type="button"
               aria-label="Profile"
               className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold shrink-0 hover:opacity-90 transition"
+              type="button"
               onClick={() => navigate("/profile")}
             >
               {user.username?.charAt(0).toUpperCase() ||
@@ -408,9 +376,9 @@ export const Sidebar = ({ onNewChat, onChatSelect }: SidebarProps) => {
             </div>
           </div>
           <button
-            type="button"
             aria-label="Log out"
             className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 transition"
+            type="button"
             onClick={() => setLogoutDialogOpen(true)}
           >
             <LogoutIcon className="w-4 h-4" />
